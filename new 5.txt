@@ -1,0 +1,64 @@
+Setup Code Infrastructure Services
+	JIRA
+	IntelliJ
+	sbt/Maven
+	git
+	GitLab/GitBucket
+	Jenkins
+		Successfully running docker from Jenkins:
+
+			Dockerfile
+				FROM jenkins/jenkins:2.267-alpine
+				USER root
+				RUN apk update && apk add --no-cache docker-cli
+				USER jenkins
+				ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+				COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+				RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+
+			docker build -t jenkins-blueocean:1.1 .
+
+			docker run --name jenkins-blueocean --rm --detach --group-add $(stat -c '%g' /var/run/docker.sock) --volume jenkins-data:/var/jenkins_home --volume /var/run/docker.sock:/var/run/docker.sock --publish 8080:8080 --publish 50000:50000 jenkins-blueocean:1.1
+			
+			Jenkins.instance.pluginManager.plugins.each{
+				plugin -> println("${plugin.getShortName()}")
+			}
+
+		Configure Jenkins from Code
+		Secure Jenkins
+		Running sbt from Jenkins
+		Running Sonar from Jenkins
+		Deploying to Nexus from Jenkins
+		Deploying to Pi cluster from Jenkins
+		Deploying to AWS from Jenkins
+		Running integration tests from Jenkins
+	SonarQube
+	Nexus/Artifactory
+	
+Setup Application Monitoring Infrastructure
+	ELK stack
+		ElasticSearch
+		logstash
+		Kibana
+	Prometheus
+	Grafana
+
+Configure Code Infrastructure Services to send information to the Application Monitoring Infrastructure	
+
+Write tests - IntelliJ (container - ???)
+Run tests to see them failing - sbt plugin within IntelliJ (container - ???)
+	sbt container - ???
+Write code to make tests pass - IntelliJ (container - ???)
+Commit changes - local git repository (project file structure)
+	git container - ???
+Push changes - GitLab/GitBucket container cluster
+Jenkins Pipeline - Jenkins container cluster
+	Publish unit test reports
+	Publish unit test coverage reports
+	Publish static code analysis reports to Sonar
+	Deploy to Integration (Pi cluster)
+		Run Integration tests
+	Deploy to QA (AWS)
+		Run Load tests - ???
+		Run Acceptance/Manual tests - ???
+	Deploy to Production (AWS)
